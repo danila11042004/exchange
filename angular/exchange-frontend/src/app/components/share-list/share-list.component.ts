@@ -3,13 +3,28 @@ import { ShareService, Share } from '../../services/share.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-share-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
     <h2>Список акций</h2>
+
+    <div style="margin-bottom: 10px;">
+      <label>Поиск по:
+        <select [(ngModel)]="filterField">
+          <option value="companyName">Название компании</option>
+          <option value="companyAddress">Адрес</option>
+          <option value="price">Цена</option>
+          <option value="quantityAvailable">Доступно</option>
+          <option value="controlStakeSize">Контр. пакет</option>
+        </select>
+      </label>
+      <input [(ngModel)]="filterValue" placeholder="Введите значение для поиска" />
+    </div>
+
     <div class="form-container" *ngIf="isAdmin">
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <input formControlName="companyName" placeholder="Название компании" required />
@@ -21,7 +36,7 @@ import { AuthService } from '../../services/auth.service';
           type="number"
           min="1"
           (input)="onNumberInput('price')"
-          (keydown)="onKeyDownNoMinus($event)"/>
+          (keydown)="onKeyDownNoMinus($event)" />
 
         <input
           formControlName="quantityAvailable"
@@ -29,15 +44,16 @@ import { AuthService } from '../../services/auth.service';
           type="number"
           min="1"
           (input)="onNumberInput('quantityAvailable')"
-           (keydown)="onKeyDownNoMinus($event)"/>
+          (keydown)="onKeyDownNoMinus($event)" />
 
         <input
           formControlName="controlStakeSize"
           placeholder="Контрольный пакет (%)"
           type="number"
-          min="1" max="100"
+          min="1"
+          max="100"
           (input)="onNumberInput('controlStakeSize')"
-           (keydown)="onKeyDownNoMinus($event)"/>
+          (keydown)="onKeyDownNoMinus($event)" />
 
         <button type="submit" [disabled]="form.invalid">
           {{ editingShare ? 'Сохранить' : 'Добавить' }}
@@ -58,7 +74,7 @@ import { AuthService } from '../../services/auth.service';
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let share of shares">
+        <tr *ngFor="let share of filteredShares()">
           <td>{{ share.companyName }}</td>
           <td>{{ share.companyAddress }}</td>
           <td>{{ share.price | number:'1.2-2' }}</td>
@@ -87,7 +103,7 @@ import { AuthService } from '../../services/auth.service';
       margin-bottom: 20px;
       flex-wrap: wrap;
     }
-    input {
+    input, select {
       padding: 4px;
       flex: 1 1 180px;
     }
@@ -110,6 +126,10 @@ export class ShareListComponent implements OnInit {
   editingShare: Share | null = null;
   isAdmin = false;
 
+  // поля фильтра
+  filterField: keyof Share = 'companyName';
+  filterValue: string = '';
+
   constructor(
     private shareService: ShareService,
     private fb: FormBuilder,
@@ -120,14 +140,10 @@ export class ShareListComponent implements OnInit {
       companyAddress: [''],
       price: ['', [Validators.required, Validators.min(1)]],
       quantityAvailable: ['', [Validators.required, Validators.min(1)]],
-      controlStakeSize: ['', [Validators.required,Validators.min(1), Validators.max(100)]]
+      controlStakeSize: ['', [Validators.required, Validators.min(1), Validators.max(100)]]
     });
   }
-  onKeyDownNoMinus(event: KeyboardEvent) {
-    if (event.key === '-') {
-      event.preventDefault();
-    }
-  }
+
   ngOnInit() {
     this.authService.isAdmin$.subscribe(status => this.isAdmin = status);
     this.loadShares();
@@ -139,10 +155,28 @@ export class ShareListComponent implements OnInit {
     });
   }
 
+  filteredShares(): Share[] {
+    if (!this.filterValue.trim()) {
+      return this.shares;
+    }
+
+    const value = this.filterValue.toLowerCase();
+
+    return this.shares.filter(share => {
+      const field = share[this.filterField];
+      return field !== null && field !== undefined && field.toString().toLowerCase().includes(value);
+    });
+  }
+
+  onKeyDownNoMinus(event: KeyboardEvent) {
+    if (event.key === '-') {
+      event.preventDefault();
+    }
+  }
+
   onNumberInput(controlName: string) {
     let value = this.form.controls[controlName].value;
 
-    // Если значение отрицательное или 0 — очистить поле
     if (value !== null && value !== '' && (+value <= 0)) {
       this.form.controls[controlName].setValue('');
     }
@@ -154,14 +188,17 @@ export class ShareListComponent implements OnInit {
     const quantityAvailable = this.form.controls['quantityAvailable'].value;
     const controlStakeSize = this.form.controls['controlStakeSize'].value;
     const companyAddress = this.form.controls['companyAddress'].value;
+
     if (!companyName || companyName.trim().length === 0) {
       alert('Поле "Название компании" обязательно и не может содержать только пробелы');
       return;
     }
+
     if (companyAddress !== null && companyAddress !== '' && companyAddress.trim().length === 0) {
       alert('Поле "Адрес компании" не может содержать только пробелы');
       return;
     }
+
     if (price === null || price === '' || +price <= 0) {
       alert('Поле "Цена" обязательно и должно быть больше 0');
       return;
@@ -194,7 +231,6 @@ export class ShareListComponent implements OnInit {
       });
     }
   }
-
 
   startEdit(share: Share) {
     this.editingShare = share;

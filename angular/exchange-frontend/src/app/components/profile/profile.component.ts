@@ -18,15 +18,20 @@ import { FormsModule } from '@angular/forms';
     </div>
 
     <div *ngIf="authService.currentUser$ | async as user">
-      <!-- Админ-панель -->
-      <div style="margin-bottom: 1rem;">
-        <div *ngIf="!isAdmin">
-          <input [(ngModel)]="adminCode" placeholder="Введите админ-код" />
-          <button (click)="verifyAdminCode()">Получить права администратора</button>
-        </div>
-        <div *ngIf="isAdmin">
-          <p>✅ У вас есть права администратора</p>
-          <button (click)="revokeAdmin()">Отключить права администратора</button>
+      <!-- Панель управления -->
+      <div class="form-container">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button (click)="logout()">🚪 Выйти</button>
+
+          <ng-container *ngIf="!isAdmin">
+            <input [(ngModel)]="adminCode" placeholder="Введите админ-код" />
+            <button (click)="verifyAdminCode()">Получить права администратора</button>
+          </ng-container>
+
+          <ng-container *ngIf="isAdmin">
+            <p style="margin: 0; padding-top: 4px;">✅ У вас есть права администратора</p>
+            <button (click)="revokeAdmin()">Отключить права администратора</button>
+          </ng-container>
         </div>
       </div>
 
@@ -85,6 +90,12 @@ import { FormsModule } from '@angular/forms';
     th {
       background-color: #f2f2f2;
     }
+    .form-container {
+      background: #fff;
+      padding: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+    }
   `]
 })
 export class ProfileComponent implements OnInit {
@@ -124,6 +135,10 @@ export class ProfileComponent implements OnInit {
     this.isAdmin = false;
     this.adminCode = '';
     localStorage.removeItem('isAdmin');
-    this.authService.setAdminStatus(false); // Метод нужно добавить в AuthService
+    this.authService.setAdminStatus(false);
+  }
+
+  logout() {
+    this.authService.logout();
   }
 }
