@@ -1,5 +1,5 @@
 package com.example.webapp.controller;
-
+import java.util.UUID;
 import com.example.webapp.dto.AuthRequest;
 import com.example.webapp.dto.AuthResponse;
 import com.example.webapp.dto.RegisterRequest;
@@ -18,6 +18,17 @@ public class AuthController {
         this.userService = userService;
     }
 
+    private static final String ADMIN_CODE = UUID.randomUUID().toString(); // Генерация один раз при запуске
+
+    @GetMapping("/admin-code")
+    public ResponseEntity<String> getAdminCode() {
+        return ResponseEntity.ok(ADMIN_CODE);
+    }
+
+    @PostMapping("/verify-admin")
+    public ResponseEntity<Boolean> verifyAdmin(@RequestBody String code) {
+        return ResponseEntity.ok(ADMIN_CODE.equals(code));
+    }
     @PostMapping("/register")
     public ResponseEntity<Buyer> register(@RequestBody RegisterRequest request) {
         Buyer created = userService.register(request);

@@ -1,7 +1,11 @@
 package com.example.webapp.dto;
 
 import com.example.webapp.entity.Deal;
+import com.example.webapp.entity.Buyer;
+import com.example.webapp.entity.Deal;
+import com.example.webapp.entity.Share;
 
+import java.time.LocalDateTime;
 import java.time.LocalDateTime;
 
 public class DealResponse {
@@ -20,19 +24,25 @@ public class DealResponse {
         this.quantityPurchased = deal.getQuantityPurchased();
         this.dealDate = deal.getDealDate();
 
-        System.out.println(">>> Buyer: " + deal.getBuyer());
-        System.out.println(">>> Share: " + deal.getShare());
-
         if (deal.getBuyer() != null) {
-            this.buyerId = deal.getBuyer().getId();
-            this.buyerFullName = deal.getBuyer().getFullName();
+            Buyer buyer = deal.getBuyer();
+            this.buyerId = buyer.getId();
+            this.buyerFullName = buyer.getFullName();
+        } else {
+            this.buyerId = null;
+            this.buyerFullName = "неизвестно";
         }
 
         if (deal.getShare() != null) {
-            this.shareId = deal.getShare().getId();
-            this.shareCompanyName = deal.getShare().getCompanyName();
+            Share share = deal.getShare();
+            this.shareId = share.getId();
+            this.shareCompanyName = share.getCompanyName();
+        } else {
+            this.shareId = null;
+            this.shareCompanyName = "неизвестно";
         }
     }
+
 
     public Long getId() {
         return id;

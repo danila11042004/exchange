@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DealService } from '../../services/deal.service';
-import { CommonModule } from '@angular/common';
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-deal-list',
@@ -17,6 +16,7 @@ import { DatePipe } from '@angular/common';
           <th>Покупатель</th>
           <th>Количество</th>
           <th>Дата</th>
+          <th *ngIf="isAdmin">Действия</th>
         </tr>
       </thead>
       <tbody>
@@ -26,6 +26,9 @@ import { DatePipe } from '@angular/common';
           <td>{{ deal.buyerFullName }}</td>
           <td>{{ deal.quantityPurchased }}</td>
           <td>{{ deal.dealDate | date:'medium' }}</td>
+          <td *ngIf="isAdmin">
+            <button (click)="deleteDeal(deal.id)">🗑️ Удалить</button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -39,10 +42,27 @@ import { DatePipe } from '@angular/common';
 })
 export class DealListComponent implements OnInit {
   deals: any[] = [];
+  isAdmin = false;
 
   constructor(private dealService: DealService) {}
 
   ngOnInit() {
+    this.isAdmin = this.checkIfUserIsAdmin();
+    this.loadDeals();
+  }
+
+  checkIfUserIsAdmin(): boolean {
+    // TODO: Получить из сервиса авторизации
+    return false;
+  }
+
+  loadDeals() {
     this.dealService.getAll().subscribe(data => this.deals = data);
+  }
+
+  deleteDeal(id: number) {
+    if (confirm('Вы уверены, что хотите удалить сделку?')) {
+      this.dealService.delete(id).subscribe(() => this.loadDeals());
+    }
   }
 }

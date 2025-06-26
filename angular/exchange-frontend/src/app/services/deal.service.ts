@@ -33,7 +33,9 @@ export class DealService {
     if (!userId) throw new Error('User not authenticated');
     return this.getByUserId(userId);
   }
-
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
   createDeal(dealData: {
     shareId: number;
     quantity: number;
