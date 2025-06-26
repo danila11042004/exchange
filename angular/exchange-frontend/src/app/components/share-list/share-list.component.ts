@@ -2,20 +2,43 @@ import { Component, OnInit } from '@angular/core';
 import { ShareService, Share } from '../../services/share.service';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-share-list',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-  <h2>Список акций</h2>
+    <h2>Список акций</h2>
     <div class="form-container" *ngIf="isAdmin">
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <input formControlName="companyName" placeholder="Название компании" required />
         <input formControlName="companyAddress" placeholder="Адрес" />
-        <input formControlName="price" placeholder="Цена" type="number" />
-        <input formControlName="quantityAvailable" placeholder="Доступно" type="number" />
-        <input formControlName="controlStakeSize" placeholder="Контрольный пакет (%)" type="number" />
+
+        <input
+          formControlName="price"
+          placeholder="Цена (больше 0)"
+          type="number"
+          min="1"
+          (input)="onNumberInput('price')"
+          (keydown)="onKeyDownNoMinus($event)"/>
+
+        <input
+          formControlName="quantityAvailable"
+          placeholder="Доступно (больше 0)"
+          type="number"
+          min="1"
+          (input)="onNumberInput('quantityAvailable')"
+           (keydown)="onKeyDownNoMinus($event)"/>
+
+        <input
+          formControlName="controlStakeSize"
+          placeholder="Контрольный пакет (%)"
+          type="number"
+          min="1" max="100"
+          (input)="onNumberInput('controlStakeSize')"
+           (keydown)="onKeyDownNoMinus($event)"/>
+
         <button type="submit" [disabled]="form.invalid">
           {{ editingShare ? 'Сохранить' : 'Добавить' }}
         </button>
@@ -87,24 +110,27 @@ export class ShareListComponent implements OnInit {
   editingShare: Share | null = null;
   isAdmin = false;
 
-  constructor(private shareService: ShareService, private fb: FormBuilder) {
+  constructor(
+    private shareService: ShareService,
+    private fb: FormBuilder,
+    private authService: AuthService
+  ) {
     this.form = this.fb.group({
       companyName: ['', Validators.required],
       companyAddress: [''],
-      price: [0, Validators.min(0)],
-      quantityAvailable: [0, Validators.min(0)],
-      controlStakeSize: [0, [Validators.min(0), Validators.max(100)]]
+      price: ['', [Validators.required, Validators.min(1)]],
+      quantityAvailable: ['', [Validators.required, Validators.min(1)]],
+      controlStakeSize: ['', [Validators.required,Validators.min(1), Validators.max(100)]]
     });
   }
-
-  ngOnInit() {
-    this.isAdmin = this.checkIfUserIsAdmin();
-    this.loadShares();
+  onKeyDownNoMinus(event: KeyboardEvent) {
+    if (event.key === '-') {
+      event.preventDefault();
+    }
   }
-
-  checkIfUserIsAdmin(): boolean {
-    // TODO: Получить из сервиса авторизации
-    return false;
+  ngOnInit() {
+    this.authService.isAdmin$.subscribe(status => this.isAdmin = status);
+    this.loadShares();
   }
 
   loadShares() {
@@ -113,8 +139,47 @@ export class ShareListComponent implements OnInit {
     });
   }
 
+  onNumberInput(controlName: string) {
+    let value = this.form.controls[controlName].value;
+
+    // Если значение отрицательное или 0 — очистить поле
+    if (value !== null && value !== '' && (+value <= 0)) {
+      this.form.controls[controlName].setValue('');
+    }
+  }
+
   onSubmit() {
-    if (!this.form.valid) return;
+    const companyName = this.form.controls['companyName'].value;
+    const price = this.form.controls['price'].value;
+    const quantityAvailable = this.form.controls['quantityAvailable'].value;
+    const controlStakeSize = this.form.controls['controlStakeSize'].value;
+    const companyAddress = this.form.controls['companyAddress'].value;
+    if (!companyName || companyName.trim().length === 0) {
+      alert('Поле "Название компании" обязательно и не может содержать только пробелы');
+      return;
+    }
+    if (companyAddress !== null && companyAddress !== '' && companyAddress.trim().length === 0) {
+      alert('Поле "Адрес компании" не может содержать только пробелы');
+      return;
+    }
+    if (price === null || price === '' || +price <= 0) {
+      alert('Поле "Цена" обязательно и должно быть больше 0');
+      return;
+    }
+
+    if (quantityAvailable === null || quantityAvailable === '' || +quantityAvailable <= 0) {
+      alert('Поле "Доступно" обязательно и должно быть больше 0');
+      return;
+    }
+
+    if (controlStakeSize !== null && controlStakeSize !== '') {
+      if (+controlStakeSize < 0 || +controlStakeSize > 100) {
+        alert('Поле "Контрольный пакет" должно быть от 0 до 100');
+        return;
+      }
+    }
+
+    if (this.form.invalid) return;
 
     if (this.editingShare) {
       const updated = { ...this.editingShare, ...this.form.value };
@@ -129,6 +194,7 @@ export class ShareListComponent implements OnInit {
       });
     }
   }
+
 
   startEdit(share: Share) {
     this.editingShare = share;

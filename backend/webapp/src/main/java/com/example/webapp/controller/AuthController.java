@@ -18,7 +18,7 @@ public class AuthController {
         this.userService = userService;
     }
 
-    private static final String ADMIN_CODE = UUID.randomUUID().toString(); // Генерация один раз при запуске
+    private static final String ADMIN_CODE = "123"; // Генерация один раз при запуске
 
     @GetMapping("/admin-code")
     public ResponseEntity<String> getAdminCode() {

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DealService } from '../../services/deal.service';
 import { CommonModule, DatePipe } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-deal-list',
@@ -44,16 +45,14 @@ export class DealListComponent implements OnInit {
   deals: any[] = [];
   isAdmin = false;
 
-  constructor(private dealService: DealService) {}
+  constructor(
+    private dealService: DealService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
-    this.isAdmin = this.checkIfUserIsAdmin();
+    this.authService.isAdmin$.subscribe(status => this.isAdmin = status);
     this.loadDeals();
-  }
-
-  checkIfUserIsAdmin(): boolean {
-    // TODO: Получить из сервиса авторизации
-    return false;
   }
 
   loadDeals() {
