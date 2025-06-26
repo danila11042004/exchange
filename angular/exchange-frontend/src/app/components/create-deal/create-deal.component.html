@@ -5,10 +5,18 @@
 </div>
 
 <form #dealForm="ngForm" (ngSubmit)="onSubmit()" *ngIf="isLoggedIn" class="form-container">
+
   <label for="share">Выберите акцию:</label>
-  <select [(ngModel)]="selectedShareId" name="share" id="share" required>
-    <option *ngFor="let share of shares$ | async" [value]="share.id">
-      {{ share.companyName }} ({{ share.price | currency }})
+  <select
+    [(ngModel)]="selectedShareId"
+    name="share"
+    id="share"
+    required
+    (change)="quantity = 1"
+  >
+    <option [ngValue]="null" disabled>-- Выберите акцию --</option>
+    <option *ngFor="let share of shares" [ngValue]="share.id">
+      {{ share.companyName }} ({{ share.price | currency }}) — доступно: {{ share.quantityAvailable }}
     </option>
   </select>
 
@@ -18,10 +26,12 @@
     [(ngModel)]="quantity"
     name="quantity"
     id="quantity"
-    min="1"
+    [min]="1"
+    [max]="selectedShare?.quantityAvailable || 1"
     required
     (keydown)="blockMinus($event)"
+    (input)="onQuantityChange()"
   />
 
-  <button type="submit" [disabled]="!dealForm.valid">Подтвердить</button>
+  <button type="submit" [disabled]="!dealForm.form.valid || !isQuantityValid">Подтвердить</button>
 </form>

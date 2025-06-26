@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ShareService } from '../../services/share.service';
+import { ShareService, Share } from '../../services/share.service';
 import { DealService } from '../../services/deal.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -15,8 +15,8 @@ import { AuthService } from '../../services/auth.service';
 export class CreateDealComponent implements OnInit {
   selectedShareId: number | null = null;
   quantity: number = 1;
-
-  shares$: any;
+  isQuantityValid: boolean = true;
+  shares: Share[] = [];
   isLoggedIn = false;
 
   constructor(
@@ -26,11 +26,21 @@ export class CreateDealComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.shares$ = this.shareService.getAll();
+    this.loadShares();
 
     this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
     });
+  }
+
+  loadShares() {
+    this.shareService.getAll().subscribe(shares => {
+      this.shares = shares;
+    });
+  }
+
+  get selectedShare(): Share | undefined {
+    return this.shares.find(s => s.id === this.selectedShareId);
   }
 
   blockMinus(event: KeyboardEvent) {
@@ -39,25 +49,78 @@ export class CreateDealComponent implements OnInit {
     }
   }
 
+  onQuantityChange() {
+      if (!this.selectedShare) {
+        this.isQuantityValid = false;
+        return;
+      }
+
+      // Проверяем валидность, но не меняем quantity
+      this.isQuantityValid =
+        this.quantity >= 1 && this.quantity <= this.selectedShare.quantityAvailable;
+    }
+
   onSubmit() {
     if (!this.isLoggedIn) {
       alert('Вы должны войти в систему, чтобы совершить сделку.');
       return;
     }
 
-    if (this.selectedShareId) {
-      const dealData = {
-        shareId: this.selectedShareId,
-        quantity: this.quantity
-      };
-
-      this.dealService.createDeal(dealData).subscribe({
-        next: () => alert('Сделка успешно создана!'),
-        error: (err) => {
-          console.error('Ошибка:', err);
-          alert('Ошибка при создании сделки.');
-        }
-      });
+    if (!this.selectedShareId) {
+      alert('Выберите акцию.');
+      return;
     }
+
+    const share = this.selectedShare;
+    if (!share) {
+      alert('Выбранная акция не найдена.');
+      return;
+    }
+
+    if (this.quantity < 1) {
+      alert('Количество акций должно быть минимум 1.');
+      return;
+    }
+
+    if (this.quantity > share.quantityAvailable) {
+      alert(`Доступно максимум ${share.quantityAvailable} акций.`);
+      return;
+    }
+
+    const dealData = {
+      shareId: this.selectedShareId,
+      quantity: this.quantity
+    };
+
+    this.dealService.createDeal(dealData).subscribe({
+      next: () => {
+        alert('Сделка успешно создана!');
+        const newQuantity = share.quantityAvailable - this.quantity;
+
+        if (newQuantity > 0) {
+          const updatedShare = { ...share, quantityAvailable: newQuantity };
+          this.shareService.update(share.id, updatedShare).subscribe({
+            next: (updated) => {
+              this.shares = this.shares.map(s => s.id === updated.id ? updated : s);
+              this.quantity = 1;
+            },
+            error: () => alert('Ошибка обновления количества акций.')
+          });
+        } else {
+          this.shareService.delete(share.id).subscribe({
+            next: () => {
+              this.shares = this.shares.filter(s => s.id !== share.id);
+              this.quantity = 1;
+              this.selectedShareId = null;
+            },
+            error: () => alert('Ошибка удаления акции.')
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Ошибка:', err);
+        alert('Ошибка при создании сделки.');
+      }
+    });
   }
 }
