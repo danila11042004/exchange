@@ -25,20 +25,6 @@ public class ShareService {
                 .orElseThrow(() -> new RuntimeException("Share not found"));
     }
 
-    public Share create(Share share) {
-        return shareRepository.save(share);
-    }
-
-    public Share update(Long id, Share updatedShare) {
-        Share existing = getById(id);
-        existing.setCompanyName(updatedShare.getCompanyName());
-        existing.setCompanyAddress(updatedShare.getCompanyAddress());
-        existing.setPrice(updatedShare.getPrice());
-        existing.setQuantityAvailable(updatedShare.getQuantityAvailable());
-        existing.setControlStakeSize(updatedShare.getControlStakeSize());
-        return shareRepository.save(existing);
-    }
-
     public void delete(Long id) {
         shareRepository.deleteById(id);
     }

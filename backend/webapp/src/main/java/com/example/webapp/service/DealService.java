@@ -45,18 +45,7 @@ public class DealService {
         return deals.stream().map(DealResponse::new).toList();
     }
 
-    public Deal create(Deal deal) {
-        return dealRepository.save(deal);
-    }
 
-    public Deal update(Long id, Deal updatedDeal) {
-        Deal existing = getById(id);
-        existing.setShare(updatedDeal.getShare());
-        existing.setBuyer(updatedDeal.getBuyer());
-        existing.setQuantityPurchased(updatedDeal.getQuantityPurchased());
-        existing.setDealDate(updatedDeal.getDealDate());
-        return dealRepository.save(existing);
-    }
 
     public void delete(Long id) {
         dealRepository.deleteById(id);

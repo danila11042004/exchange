@@ -25,19 +25,6 @@ public class BuyerService {
                 .orElseThrow(() -> new RuntimeException("Buyer not found"));
     }
 
-    public Buyer create(Buyer buyer) {
-        return buyerRepository.save(buyer);
-    }
-
-    public Buyer update(Long id, Buyer updatedBuyer) {
-        Buyer existing = getById(id);
-        existing.setFullName(updatedBuyer.getFullName());
-        existing.setAddress(updatedBuyer.getAddress());
-        existing.setPhone(updatedBuyer.getPhone());
-        existing.setEmail(updatedBuyer.getEmail());
-        return buyerRepository.save(existing);
-    }
-
     public void delete(Long id) {
         buyerRepository.deleteById(id);
     }
