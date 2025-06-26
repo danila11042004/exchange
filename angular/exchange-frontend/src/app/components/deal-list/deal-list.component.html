@@ -1,0 +1,43 @@
+<h2>Список сделок</h2>
+
+<div class="filter-container">
+  <label for="searchField">Поиск по:</label>
+  <select id="searchField" [(ngModel)]="searchField" class="filter-select">
+    <option value="shareCompanyName">Акция</option>
+    <option value="buyerFullName">Покупатель</option>
+    <option value="quantityPurchased">Количество</option>
+    <option value="dealDate">Дата</option>
+  </select>
+
+  <input
+    type="text"
+    [(ngModel)]="searchTerm"
+    placeholder="Введите значение для поиска"
+    class="filter-input"
+  />
+</div>
+
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Акция</th>
+    <th>Покупатель</th>
+    <th>Количество</th>
+    <th>Дата</th>
+    <th *ngIf="isAdmin">Действия</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let deal of filteredDeals()">
+    <td>{{ deal.id }}</td>
+    <td>{{ deal.shareCompanyName }}</td>
+    <td>{{ deal.buyerFullName }}</td>
+    <td>{{ deal.quantityPurchased }}</td>
+    <td>{{ deal.dealDate | date:'dd.MM.yyyy' }}</td>
+    <td *ngIf="isAdmin">
+      <button (click)="deleteDeal(deal.id)" class="btn-delete">🗑️ Удалить</button>
+    </td>
+  </tr>
+  </tbody>
+</table>

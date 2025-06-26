@@ -8,89 +8,8 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-buyer-list',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-    <h2>Список покупателей</h2>
-
-    <div style="margin-bottom: 10px;">
-      <label>Поиск по:
-        <select [(ngModel)]="filterField">
-          <option value="fullName">ФИО</option>
-          <option value="email">Email</option>
-          <option value="phone">Телефон</option>
-          <option value="address">Адрес</option>
-        </select>
-      </label>
-      <input [(ngModel)]="filterValue" placeholder="Введите значение для поиска" />
-    </div>
-
-    <div class="form-container" *ngIf="isAdmin">
-      <form (ngSubmit)="onSubmit()">
-        <input [(ngModel)]="fullName" name="fullName" placeholder="ФИО" required />
-        <input [(ngModel)]="email" name="email" placeholder="Email" required />
-        <input [(ngModel)]="phone" name="phone" placeholder="Телефон" required />
-        <input [(ngModel)]="address" name="address" placeholder="Адрес" required />
-        <button type="submit">
-          {{ editingBuyer ? 'Сохранить' : 'Добавить' }}
-        </button>
-        <button type="button" *ngIf="editingBuyer" (click)="cancelEdit()">Отмена</button>
-      </form>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>ФИО</th>
-          <th>Email</th>
-          <th>Телефон</th>
-          <th>Адрес</th>
-          <th *ngIf="isAdmin">Действия</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let buyer of filteredBuyers()">
-          <td>{{ buyer.fullName }}</td>
-          <td>{{ buyer.email }}</td>
-          <td>{{ buyer.phone }}</td>
-          <td>{{ buyer.address }}</td>
-          <td *ngIf="isAdmin">
-            <button (click)="startEdit(buyer)">✏️</button>
-            <button (click)="deleteBuyer(buyer)">🗑️</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  `,
-  styles: [`
-    form {
-      margin-bottom: 20px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    input, select {
-      padding: 4px;
-      flex: 1 1 200px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-    }
-    th {
-      background: #eee;
-    }
-    .form-container {
-      position: sticky;
-      top: 0;
-      background: white;
-      padding: 10px 0;
-      z-index: 1000;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-  `]
+  templateUrl: './buyer-list.component.html',
+  styleUrls: ['./buyer-list.component.scss']
 })
 export class BuyerListComponent implements OnInit {
   buyers: Buyer[] = [];
@@ -146,19 +65,19 @@ export class BuyerListComponent implements OnInit {
   }
 
   onSubmit() {
-    if (!this.fullName || this.fullName.trim().length === 0) {
+    if (!this.fullName.trim()) {
       alert('Поле ФИО обязательно и не может содержать только пробелы');
       return;
     }
-    if (!this.email || this.email.trim().length === 0) {
+    if (!this.email.trim()) {
       alert('Поле Email обязательно и не может содержать только пробелы');
       return;
     }
-    if (!this.phone || this.phone.trim().length === 0) {
+    if (!this.phone.trim()) {
       alert('Поле Телефон обязательно и не может содержать только пробелы');
       return;
     }
-    if (!this.address || this.address.trim().length === 0) {
+    if (!this.address.trim()) {
       alert('Поле Адрес обязательно и не может содержать только пробелы');
       return;
     }

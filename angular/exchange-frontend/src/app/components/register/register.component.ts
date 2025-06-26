@@ -8,17 +8,8 @@ import { BuyerService } from '../../services/buyer.service';
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-    <h2>Регистрация</h2>
-    <form (ngSubmit)="onSubmit()">
-      <input [(ngModel)]="fullName" name="fullName" placeholder="ФИО" required>
-      <input [(ngModel)]="email" name="email" placeholder="Email" required>
-      <input [(ngModel)]="phone" name="phone" placeholder="Телефон" required>
-      <input [(ngModel)]="address" name="address" placeholder="Адрес" required>
-      <input [(ngModel)]="password" name="password" type="password" placeholder="Пароль" required>
-      <button type="submit">Зарегистрироваться</button>
-    </form>
-  `
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
   fullName = '';
@@ -121,5 +112,4 @@ export class RegisterComponent {
       });
     });
   }
-
 }

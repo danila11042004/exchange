@@ -7,14 +7,8 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-    <h2>Вход</h2>
-    <form (ngSubmit)="onLogin()">
-      <input [(ngModel)]="email" name="email" placeholder="Email" required>
-      <input [(ngModel)]="password" name="password" type="password" placeholder="Пароль" required>
-      <button type="submit">Войти</button>
-    </form>
-  `
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
   email = '';

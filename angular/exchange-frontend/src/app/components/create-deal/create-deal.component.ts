@@ -9,35 +9,8 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-create-deal',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-    <h2>Совершить сделку</h2>
-
-    <div *ngIf="!isLoggedIn">
-      <p>🔒 Пожалуйста, войдите в систему, чтобы совершить сделку.</p>
-    </div>
-
-    <form #dealForm="ngForm" (ngSubmit)="onSubmit()" *ngIf="isLoggedIn">
-      <label for="share">Выберите акцию:</label>
-      <select [(ngModel)]="selectedShareId" name="share" id="share" required>
-        <option *ngFor="let share of shares$ | async" [value]="share.id">
-          {{ share.companyName }} ({{ share.price | currency }})
-        </option>
-      </select>
-
-      <label for="quantity">Количество акций:</label>
-      <input type="number" [(ngModel)]="quantity" name="quantity" id="quantity" min="1" required
-      (keydown)="blockMinus($event)">
-
-      <button type="submit" [disabled]="!dealForm.valid">Подтвердить</button>
-    </form>
-  `,
-  styles: [`
-    form { max-width: 500px; margin: 2rem auto; }
-    label { display: block; margin-top: 1rem; font-weight: bold; }
-    select, input { width: 100%; padding: 0.5rem; margin-top: 0.3rem; }
-    button { margin-top: 1rem; }
-    p { color: #d00; font-weight: bold; text-align: center; }
-  `]
+  templateUrl: './create-deal.component.html',
+  styleUrls: ['./create-deal.component.scss']
 })
 export class CreateDealComponent implements OnInit {
   selectedShareId: number | null = null;
@@ -59,11 +32,12 @@ export class CreateDealComponent implements OnInit {
       this.isLoggedIn = !!user;
     });
   }
-blockMinus(event: KeyboardEvent) {
-  if (event.key === '-' || event.key === 'Minus') {
-    event.preventDefault();
+
+  blockMinus(event: KeyboardEvent) {
+    if (event.key === '-' || event.key === 'Minus') {
+      event.preventDefault();
+    }
   }
-}
 
   onSubmit() {
     if (!this.isLoggedIn) {

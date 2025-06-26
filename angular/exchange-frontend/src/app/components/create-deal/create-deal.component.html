@@ -1,0 +1,27 @@
+<h2>Совершить сделку</h2>
+
+<div *ngIf="!isLoggedIn" class="message">
+  <p>🔒 Пожалуйста, войдите в систему, чтобы совершить сделку.</p>
+</div>
+
+<form #dealForm="ngForm" (ngSubmit)="onSubmit()" *ngIf="isLoggedIn" class="form-container">
+  <label for="share">Выберите акцию:</label>
+  <select [(ngModel)]="selectedShareId" name="share" id="share" required>
+    <option *ngFor="let share of shares$ | async" [value]="share.id">
+      {{ share.companyName }} ({{ share.price | currency }})
+    </option>
+  </select>
+
+  <label for="quantity">Количество акций:</label>
+  <input
+    type="number"
+    [(ngModel)]="quantity"
+    name="quantity"
+    id="quantity"
+    min="1"
+    required
+    (keydown)="blockMinus($event)"
+  />
+
+  <button type="submit" [disabled]="!dealForm.valid">Подтвердить</button>
+</form>

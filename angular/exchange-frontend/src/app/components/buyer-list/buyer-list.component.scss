@@ -1,7 +1,7 @@
-.title {
+:title {
   font-size: 1.8rem;
   margin-bottom: 1rem;
-  color: #a8d0e6;
+  color: #a8d0e6; // светло-голубой для заголовка
   font-weight: 600;
 }
 
@@ -10,7 +10,7 @@
   align-items: center;
   gap: 0.8rem;
   margin-bottom: 1rem;
-  color: #ddd;
+  color: #ddd; // светлый текст
 }
 
 .input-select, .input-text {
@@ -27,19 +27,17 @@
   &:focus {
     border-color: #66aaff;
     box-shadow: 0 0 6px #66aaff99;
-    outline: none;
   }
 }
 
 .form-container {
   position: sticky;
   top: 0;
-  background: #121212;
+  background: #121212; // тёмный фон
   padding: 1rem 0;
   z-index: 1000;
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.9);
   margin-bottom: 1rem;
-  border-radius: 8px;
 }
 
 .form {
@@ -48,7 +46,7 @@
   flex-wrap: wrap;
 
   .input-text {
-    flex: 1 1 180px;
+    flex: 1 1 200px;
   }
 }
 
@@ -63,7 +61,7 @@
   min-width: 100px;
 
   &.primary-btn {
-    background-color: #2979ff;
+    background-color: #2979ff; // насыщенный синий
     color: white;
 
     &:hover {
@@ -86,7 +84,7 @@
     min-width: auto;
 
     &.edit-btn {
-      background-color: #4caf50;
+      background-color: #4caf50; // зелёный
       color: white;
 
       &:hover {
@@ -95,7 +93,7 @@
     }
 
     &.delete-btn {
-      background-color: #e53935;
+      background-color: #e53935; // красный
       color: white;
 
       &:hover {

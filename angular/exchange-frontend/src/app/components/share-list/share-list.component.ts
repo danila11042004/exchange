@@ -1,124 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { ShareService, Share } from '../../services/share.service';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-share-list',
+  templateUrl: './share-list.component.html',
+  styleUrls: ['./share-list.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
-  template: `
-    <h2>Список акций</h2>
-
-    <div style="margin-bottom: 10px;">
-      <label>Поиск по:
-        <select [(ngModel)]="filterField">
-          <option value="companyName">Название компании</option>
-          <option value="companyAddress">Адрес</option>
-          <option value="price">Цена</option>
-          <option value="quantityAvailable">Доступно</option>
-          <option value="controlStakeSize">Контр. пакет</option>
-        </select>
-      </label>
-      <input [(ngModel)]="filterValue" placeholder="Введите значение для поиска" />
-    </div>
-
-    <div class="form-container" *ngIf="isAdmin">
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <input formControlName="companyName" placeholder="Название компании" required />
-        <input formControlName="companyAddress" placeholder="Адрес" />
-
-        <input
-          formControlName="price"
-          placeholder="Цена (больше 0)"
-          type="number"
-          min="1"
-          (input)="onNumberInput('price')"
-          (keydown)="onKeyDownNoMinus($event)" />
-
-        <input
-          formControlName="quantityAvailable"
-          placeholder="Доступно (больше 0)"
-          type="number"
-          min="1"
-          (input)="onNumberInput('quantityAvailable')"
-          (keydown)="onKeyDownNoMinus($event)" />
-
-        <input
-          formControlName="controlStakeSize"
-          placeholder="Контрольный пакет (%)"
-          type="number"
-          min="1"
-          max="100"
-          (input)="onNumberInput('controlStakeSize')"
-          (keydown)="onKeyDownNoMinus($event)" />
-
-        <button type="submit" [disabled]="form.invalid">
-          {{ editingShare ? 'Сохранить' : 'Добавить' }}
-        </button>
-        <button type="button" *ngIf="editingShare" (click)="cancelEdit()">Отмена</button>
-      </form>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Компания</th>
-          <th>Адрес</th>
-          <th>Цена</th>
-          <th>Доступно</th>
-          <th>Контр. пакет</th>
-          <th *ngIf="isAdmin">Действия</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let share of filteredShares()">
-          <td>{{ share.companyName }}</td>
-          <td>{{ share.companyAddress }}</td>
-          <td>{{ share.price | number:'1.2-2' }}</td>
-          <td>{{ share.quantityAvailable }}</td>
-          <td>{{ share.controlStakeSize }}%</td>
-          <td *ngIf="isAdmin">
-            <button (click)="startEdit(share)">✏️</button>
-            <button (click)="deleteShare(share)">🗑️</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  `,
-  styles: [`
-    .form-container {
-      position: sticky;
-      top: 0;
-      background: white;
-      padding: 10px 0;
-      z-index: 1000;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    form {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    input, select {
-      padding: 4px;
-      flex: 1 1 180px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 8px;
-      border: 1px solid #ddd;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-  `]
+    imports: [CommonModule, FormsModule, ReactiveFormsModule] // вот тут подключаем
 })
 export class ShareListComponent implements OnInit {
   shares: Share[] = [];
@@ -126,7 +18,6 @@ export class ShareListComponent implements OnInit {
   editingShare: Share | null = null;
   isAdmin = false;
 
-  // поля фильтра
   filterField: keyof Share = 'companyName';
   filterValue: string = '';
 
@@ -156,12 +47,9 @@ export class ShareListComponent implements OnInit {
   }
 
   filteredShares(): Share[] {
-    if (!this.filterValue.trim()) {
-      return this.shares;
-    }
+    if (!this.filterValue.trim()) return this.shares;
 
     const value = this.filterValue.toLowerCase();
-
     return this.shares.filter(share => {
       const field = share[this.filterField];
       return field !== null && field !== undefined && field.toString().toLowerCase().includes(value);
@@ -169,27 +57,20 @@ export class ShareListComponent implements OnInit {
   }
 
   onKeyDownNoMinus(event: KeyboardEvent) {
-    if (event.key === '-') {
-      event.preventDefault();
-    }
+    if (event.key === '-') event.preventDefault();
   }
 
   onNumberInput(controlName: string) {
-    let value = this.form.controls[controlName].value;
-
+    const value = this.form.controls[controlName].value;
     if (value !== null && value !== '' && (+value <= 0)) {
       this.form.controls[controlName].setValue('');
     }
   }
 
   onSubmit() {
-    const companyName = this.form.controls['companyName'].value;
-    const price = this.form.controls['price'].value;
-    const quantityAvailable = this.form.controls['quantityAvailable'].value;
-    const controlStakeSize = this.form.controls['controlStakeSize'].value;
-    const companyAddress = this.form.controls['companyAddress'].value;
+    const { companyName, companyAddress, price, quantityAvailable, controlStakeSize } = this.form.value;
 
-    if (!companyName || companyName.trim().length === 0) {
+    if (!companyName?.trim()) {
       alert('Поле "Название компании" обязательно и не может содержать только пробелы');
       return;
     }
@@ -199,12 +80,12 @@ export class ShareListComponent implements OnInit {
       return;
     }
 
-    if (price === null || price === '' || +price <= 0) {
+    if (!price || +price <= 0) {
       alert('Поле "Цена" обязательно и должно быть больше 0');
       return;
     }
 
-    if (quantityAvailable === null || quantityAvailable === '' || +quantityAvailable <= 0) {
+    if (!quantityAvailable || +quantityAvailable <= 0) {
       alert('Поле "Доступно" обязательно и должно быть больше 0');
       return;
     }

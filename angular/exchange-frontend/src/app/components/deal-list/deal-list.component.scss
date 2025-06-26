@@ -1,0 +1,81 @@
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #a8d0e6; // светло-голубой заголовок
+  font-weight: 600;
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  color: #ddd; // светлый текст
+  flex-wrap: wrap;
+}
+
+.filter-select,
+.filter-input {
+  padding: 8px 10px;
+  border: 1px solid #555;
+  border-radius: 5px;
+  font-size: 1rem;
+  outline-offset: 2px;
+  background-color: #222;
+  color: #eee;
+  transition: border-color 0.3s ease;
+  min-width: 280px;
+
+  &:focus {
+    border-color: #66aaff;
+    box-shadow: 0 0 6px #66aaff99;
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+  color: #eee;
+  background-color: #1e1e1e;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #333;
+  border-left: 1px solid #333;
+}
+
+th {
+  background-color: #272727;
+  color: #a8d0e6;
+  font-weight: 600;
+  text-align: left;
+}
+
+tbody tr:hover {
+  background-color: #333;
+}
+
+button.btn-delete {
+  padding: 4px 8px;
+  background-color: #e53935; // красный
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  min-width: auto;
+
+  &:hover {
+    background-color: #ef5350;
+  }
+
+  &:focus {
+    outline: 2px solid #ff6666;
+    outline-offset: 2px;
+  }
+}

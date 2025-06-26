@@ -1,0 +1,54 @@
+<h2 class="title">Список покупателей</h2>
+
+<div class="search-bar">
+  <label>
+    Поиск по:
+    <select [(ngModel)]="filterField" class="input-select">
+      <option value="fullName">ФИО</option>
+      <option value="email">Email</option>
+      <option value="phone">Телефон</option>
+      <option value="address">Адрес</option>
+    </select>
+  </label>
+  <input [(ngModel)]="filterValue" placeholder="Введите значение для поиска" class="input-text" />
+</div>
+
+<div class="form-container" *ngIf="isAdmin">
+  <form (ngSubmit)="onSubmit()" class="form">
+    <input [(ngModel)]="fullName" name="fullName" placeholder="ФИО" required class="input-text" />
+    <input [(ngModel)]="email" name="email" placeholder="Email" required class="input-text" />
+    <input [(ngModel)]="phone" name="phone" placeholder="Телефон" required class="input-text" />
+    <input [(ngModel)]="address" name="address" placeholder="Адрес" required class="input-text" />
+
+    <button type="submit" class="btn primary-btn">
+      {{ editingBuyer ? 'Сохранить' : 'Добавить' }}
+    </button>
+    <button type="button" *ngIf="editingBuyer" (click)="cancelEdit()" class="btn cancel-btn">
+      Отмена
+    </button>
+  </form>
+</div>
+
+<table class="data-table">
+  <thead>
+  <tr>
+    <th>ФИО</th>
+    <th>Email</th>
+    <th>Телефон</th>
+    <th>Адрес</th>
+    <th *ngIf="isAdmin">Действия</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let buyer of filteredBuyers()">
+    <td>{{ buyer.fullName }}</td>
+    <td>{{ buyer.email }}</td>
+    <td>{{ buyer.phone }}</td>
+    <td>{{ buyer.address }}</td>
+    <td *ngIf="isAdmin" class="actions-cell">
+      <button (click)="startEdit(buyer)" class="btn action-btn edit-btn">✏️</button>
+      <button (click)="deleteBuyer(buyer)" class="btn action-btn delete-btn">🗑️</button>
+    </td>
+  </tr>
+  </tbody>
+</table>
